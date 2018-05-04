@@ -1,6 +1,7 @@
 #include <dht.h>
 #include <SPI.h>
 #include <SD.h>
+
 dht DHT;
 File myLog;
 
@@ -8,7 +9,6 @@ File myLog;
 void setup()  {
   Serial.begin(9600);
   Serial.println("Temperature Logger v1.0");
-  Serial.println();
   delay(1500);
   sdInit();
   logOut();
@@ -18,10 +18,9 @@ void setup()  {
 //SD card initialization.
 void sdInit() {
   if (!SD.begin(10))  {
-    Serial.println("SD Reader failed to initiate: Program terminated...");
+    Serial.println("Error: sdInit");
     while (1);
   }  else {
-    Serial.println("SD Card detected...");
     delay(1500);
   }
 }
@@ -39,9 +38,9 @@ void logOut() {
     Serial.println("END OF LOG FILE...");
     delay(1500);
     myLog.close();
-  } else  {
-    Serial.println("Error during file deletion");
-    //while (1);
+  }  else  {
+    Serial.println("Error: logOut");
+    while (1);
   }
 }
 
@@ -56,7 +55,7 @@ void logFormat()  {
 }
 
 //Writes readings to SD Card.
-void logCard() {
+void logCard()  {
   myLog = SD.open("log.txt", FILE_WRITE);
   myLog.print(DHT.temperature);
   myLog.print(",");
@@ -66,7 +65,7 @@ void logCard() {
 }
 
 //Prints readings to serial.
-void logSerial()  {
+void logSerial() {
   Serial.print("Temperature is ");
   Serial.print(DHT.temperature);
   Serial.print(" and ");
@@ -74,17 +73,13 @@ void logSerial()  {
   Serial.println(DHT.humidity);
 }
 
-// Time between readings in ms.
-void interval() {
-  delay(60000);
-}
-
 //Loop function
 void loop() {
-
   DHT.read11(A0);
   logCard();
   logSerial();
-  interval();
-}
 
+  // Time between readings in ms.
+  //900000 = 15 minutes 60000 = 1 minute
+  delay(900000);
+}
